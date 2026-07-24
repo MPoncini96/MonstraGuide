@@ -35,8 +35,8 @@ test("generatedGuideDraftSchema rejects an empty steps array", () => {
 });
 
 test("generatedGuideDraftSchema defaults prerequisites and commonMistakes to empty arrays", () => {
-  const { prerequisites, commonMistakes, ...rest } = validDraft;
-  const parsed = generatedGuideDraftSchema.parse(rest);
+  const { title, summary, steps } = validDraft;
+  const parsed = generatedGuideDraftSchema.parse({ title, summary, steps });
   assert.deepEqual(parsed.prerequisites, []);
   assert.deepEqual(parsed.commonMistakes, []);
 });

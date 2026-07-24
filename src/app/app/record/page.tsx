@@ -10,7 +10,7 @@ export default async function RecordPage() {
       <PageIntro
         eyebrow="Record a task"
         title="Start a manual capture session"
-        description="Phase 1 establishes the reviewed capture shell. Desktop recording, screenshot analysis, and AI generation come later."
+        description="Create the capture shell here, then start the on-screen recorder from the capture's detail page."
       />
       <SectionCard title="Manual capture draft">
         <form action={createCaptureAction} className="grid gap-4 max-w-3xl">

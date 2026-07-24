@@ -4,10 +4,37 @@ import { requireCaptureAccess } from "@/lib/auth/session";
 import { formatDateTime } from "@/lib/utils";
 import { PageIntro, SectionCard } from "@/components/app/app-shell";
 import { StatusBadge } from "@/components/app/status-badge";
+import { CaptureRecorder } from "@/components/app/capture-recorder";
+import { CaptureScreenshots, type ScreenshotAssetView } from "@/components/app/capture-screenshots";
+import { getCaptureAssets } from "@/lib/capture/asset-queries";
+import { getObjectStorage } from "@/lib/storage/r2-storage";
+import { isR2Configured } from "@/lib/env";
 
 export default async function CaptureDetailPage({ params }: { params: Promise<{ captureId: string }> }) {
   const { captureId } = await params;
   const context = await requireCaptureAccess(captureId);
+
+  const storageConfigured = isR2Configured();
+  const rawAssets = await getCaptureAssets(context.workspace.id, context.capture.id);
+  const assetViews: ScreenshotAssetView[] = await Promise.all(
+    rawAssets.map(async (asset) => {
+      let previewUrl: string | null = null;
+      if (storageConfigured && asset.status === "READY") {
+        const signed = await getObjectStorage().createGetUrl(asset.objectKey);
+        previewUrl = signed.url;
+      }
+      return {
+        id: asset.id,
+        status: asset.status,
+        mimeType: asset.mimeType,
+        byteSize: asset.byteSize,
+        position: asset.position,
+        note: asset.note,
+        isPrivate: asset.isPrivate,
+        previewUrl,
+      };
+    }),
+  );
 
   return (
     <div className="space-y-8">
@@ -18,11 +45,8 @@ export default async function CaptureDetailPage({ params }: { params: Promise<{ 
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_360px]">
         <SectionCard title="Capture workspace">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-3xl border border-dashed border-[var(--border-strong)] p-4 text-sm text-[var(--foreground-muted)]">Screenshot uploads and redaction review will land in a later phase.</div>
-            <div className="rounded-3xl border border-dashed border-[var(--border-strong)] p-4 text-sm text-[var(--foreground-muted)]">Timeline events and manual notes will expand here without changing the capture record model.</div>
-            <div className="rounded-3xl border border-dashed border-[var(--border-strong)] p-4 text-sm text-[var(--foreground-muted)]">AI drafts a structured guide from this capture&apos;s title and notes. Review and edit everything before publishing.</div>
-          </div>
+          <CaptureRecorder captureId={context.capture.id} />
+          <div className="mt-4 rounded-3xl border border-dashed border-[var(--border-strong)] p-4 text-sm text-[var(--foreground-muted)]">AI drafts a structured guide from this capture&apos;s title and notes. Review and edit everything before publishing.</div>
           <div className="mt-6 flex flex-wrap gap-3">
             <form action={generateGuideFromCaptureAction}>
               <input type="hidden" name="captureId" value={context.capture.id} />
@@ -56,6 +80,9 @@ export default async function CaptureDetailPage({ params }: { params: Promise<{ 
           </dl>
         </SectionCard>
       </div>
+      <SectionCard title="Screenshots">
+        <CaptureScreenshots captureId={context.capture.id} initialAssets={assetViews} storageConfigured={storageConfigured} />
+      </SectionCard>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 'use server';
 
 import crypto from "node:crypto";
-import { GuideStatus, InvitationStatus, WorkspaceRole } from "@prisma/client";
+import { CaptureStatus, GuideStatus, InvitationStatus, WorkspaceRole } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
@@ -118,6 +118,17 @@ export async function createCaptureAction(formData: FormData) {
   });
 
   redirect(`/app/captures/${capture.id}`);
+}
+
+export async function markCaptureRecordedAction(formData: FormData) {
+  const captureId = getString(formData, "captureId");
+  const context = await requireWorkspaceRole([WorkspaceRole.ADMIN, WorkspaceRole.AUTHOR]);
+  await prisma.captureSession.updateMany({
+    where: { id: captureId, workspaceId: context.workspace.id },
+    data: { status: CaptureStatus.READY, completedAt: new Date() },
+  });
+  revalidatePath(`/app/captures/${captureId}`);
+  revalidatePath("/app/captures");
 }
 
 export async function generateGuideFromCaptureAction(formData: FormData) {

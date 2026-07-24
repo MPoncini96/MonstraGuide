@@ -9,10 +9,10 @@ import { requireUser } from "@/lib/auth/session";
 
 export default async function LoginPage() {
   if (isClerkConfigured()) {
-    try {
-      await requireUser();
+    const isSignedIn = await requireUser().then(() => true).catch(() => false);
+    if (isSignedIn) {
       redirect("/app");
-    } catch {}
+    }
   }
 
   return (
@@ -26,7 +26,9 @@ export default async function LoginPage() {
             level="h1"
           />
           {isClerkConfigured() ? (
-            <div className="flex justify-center"><SignIn path="/login" routing="path" signUpUrl="/sign-up" /></div>
+            <div className="flex justify-center">
+              <SignIn path="/login" routing="path" signUpUrl="/sign-up" fallbackRedirectUrl="/app" />
+            </div>
           ) : (
             <AuthPlaceholder
               title="Clerk configuration is required"

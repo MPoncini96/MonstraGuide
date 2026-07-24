@@ -1,0 +1,256 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WorkspaceRole {
+  ADMIN
+  AUTHOR
+  TRAINEE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum CaptureStatus {
+  DRAFT
+  READY
+  PROCESSING
+  COMPLETED
+  FAILED
+  ARCHIVED
+}
+
+enum CaptureMode {
+  MANUAL_UPLOAD
+  DESKTOP_RECORDING
+}
+
+enum GuideStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum GuideRelationType {
+  RELATED
+  PREREQUISITE
+  FOLLOW_UP
+}
+
+enum AssistantRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model User {
+  id                String                  @id @default(cuid())
+  clerkUserId       String?                 @unique
+  email             String
+  normalizedEmail   String                  @unique
+  displayName       String?
+  avatarUrl         String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  createdWorkspaces Workspace[]             @relation("WorkspaceCreator")
+  memberships       WorkspaceMembership[]
+  invitationsSent   WorkspaceInvitation[]   @relation("InvitationSender")
+  createdCaptures   CaptureSession[]
+  createdGuides     Guide[]                 @relation("GuideCreator")
+  reviewedGuides    Guide[]                 @relation("GuideReviewer")
+  guideVersions     GuideVersion[]
+  conversations     AssistantConversation[]
+
+  @@unique([email, clerkUserId])
+}
+
+model Workspace {
+  id              String                  @id @default(cuid())
+  name            String
+  slug            String                  @unique
+  createdById     String
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+  createdBy       User                    @relation("WorkspaceCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  memberships     WorkspaceMembership[]
+  invitations     WorkspaceInvitation[]
+  captureSessions CaptureSession[]
+  guides          Guide[]
+  conversations   AssistantConversation[]
+}
+
+model WorkspaceMembership {
+  id          String        @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        WorkspaceRole
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId, workspaceId])
+}
+
+model WorkspaceInvitation {
+  id              String           @id @default(cuid())
+  workspaceId     String
+  email           String
+  normalizedEmail String
+  role            WorkspaceRole
+  token           String           @unique
+  status          InvitationStatus @default(PENDING)
+  invitedById     String
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy       User             @relation("InvitationSender", fields: [invitedById], references: [id], onDelete: Restrict)
+
+  @@index([workspaceId, status])
+}
+
+model CaptureSession {
+  id          String        @id @default(cuid())
+  workspaceId String
+  createdById String
+  title       String
+  description String?
+  status      CaptureStatus @default(DRAFT)
+  captureMode CaptureMode   @default(MANUAL_UPLOAD)
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy   User          @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  guides      Guide[]
+}
+
+model Guide {
+  id                String                  @id @default(cuid())
+  workspaceId       String
+  createdById       String
+  reviewedById      String?
+  sourceCaptureId   String?
+  title             String
+  slug              String
+  summary           String
+  status            GuideStatus             @default(DRAFT)
+  estimatedMinutes  Int?
+  version           Int                     @default(1)
+  publishedAt       DateTime?
+  reviewSubmittedAt DateTime?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
+  workspace         Workspace               @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy         User                    @relation("GuideCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  reviewedBy        User?                   @relation("GuideReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  sourceCapture     CaptureSession?         @relation(fields: [sourceCaptureId], references: [id], onDelete: SetNull)
+  steps             GuideStep[]
+  prerequisites     GuidePrerequisite[]
+  commonMistakes    GuideCommonMistake[]
+  outgoingRelations GuideRelation[]         @relation("GuideRelationSource")
+  incomingRelations GuideRelation[]         @relation("GuideRelationTarget")
+  versions          GuideVersion[]
+  conversations     AssistantConversation[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, status, updatedAt])
+}
+
+model GuideStep {
+  id            String   @id @default(cuid())
+  guideId       String
+  position      Int
+  title         String
+  instruction   String
+  explanation   String?
+  warning       String?
+  screenshotUrl String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  guide         Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@unique([guideId, position])
+}
+
+model GuidePrerequisite {
+  id       String @id @default(cuid())
+  guideId  String
+  position Int
+  text     String
+  guide    Guide  @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@unique([guideId, position])
+}
+
+model GuideCommonMistake {
+  id       String @id @default(cuid())
+  guideId  String
+  position Int
+  text     String
+  guide    Guide  @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@unique([guideId, position])
+}
+
+model GuideRelation {
+  id            String            @id @default(cuid())
+  sourceGuideId String
+  targetGuideId String
+  relationType  GuideRelationType
+  createdAt     DateTime          @default(now())
+  sourceGuide   Guide             @relation("GuideRelationSource", fields: [sourceGuideId], references: [id], onDelete: Cascade)
+  targetGuide   Guide             @relation("GuideRelationTarget", fields: [targetGuideId], references: [id], onDelete: Cascade)
+
+  @@unique([sourceGuideId, targetGuideId, relationType])
+}
+
+model GuideVersion {
+  id          String   @id @default(cuid())
+  guideId     String
+  version     Int
+  snapshot    Json
+  createdById String
+  createdAt   DateTime @default(now())
+  guide       Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  createdBy   User     @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@unique([guideId, version])
+}
+
+model AssistantConversation {
+  id          String             @id @default(cuid())
+  workspaceId String
+  userId      String
+  guideId     String?
+  title       String
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guide       Guide?             @relation(fields: [guideId], references: [id], onDelete: SetNull)
+  messages    AssistantMessage[]
+}
+
+model AssistantMessage {
+  id             String                @id @default(cuid())
+  conversationId String
+  role           AssistantRole
+  content        String
+  createdAt      DateTime              @default(now())
+  conversation   AssistantConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}

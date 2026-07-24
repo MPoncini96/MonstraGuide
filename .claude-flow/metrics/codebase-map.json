@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-07-24T18:25:31.556Z",
+  "projectRoot": "C:\\Guide",
+  "structure": {
+    "hasPackageJson": true,
+    "hasTsConfig": true,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1784917531557
+}

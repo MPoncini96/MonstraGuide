@@ -1,0 +1,88 @@
+﻿@import "tailwindcss";
+@import "@fontsource/plus-jakarta-sans/400.css";
+@import "@fontsource/plus-jakarta-sans/500.css";
+@import "@fontsource/plus-jakarta-sans/600.css";
+@import "@fontsource/fraunces/600.css";
+@import "@fontsource/fraunces/700.css";
+
+:root {
+  --font-body: "Plus Jakarta Sans";
+  --font-display: "Fraunces";
+  --background: #f4f7fb;
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-strong: #ffffff;
+  --foreground: #111827;
+  --foreground-muted: #526074;
+  --foreground-subtle: #7f8ba0;
+  --border: rgba(17, 24, 39, 0.1);
+  --border-strong: rgba(17, 24, 39, 0.18);
+  --accent: #5f74ff;
+  --accent-strong: #3a5cff;
+  --accent-soft: rgba(58, 92, 255, 0.12);
+  --danger: #d94959;
+  --success: #2fb36a;
+  --warning: #c28415;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0f1a;
+    --surface: rgba(18, 25, 41, 0.82);
+    --surface-strong: #121a2b;
+    --foreground: #f4f7fb;
+    --foreground-muted: #b3bfd1;
+    --foreground-subtle: #7c889d;
+    --border: rgba(201, 215, 238, 0.12);
+    --border-strong: rgba(201, 215, 238, 0.2);
+    --accent: #6a80ff;
+    --accent-strong: #7d91ff;
+    --accent-soft: rgba(125, 145, 255, 0.14);
+    --danger: #ff7282;
+    --success: #5fd89b;
+    --warning: #f7c263;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at top, rgba(72, 104, 255, 0.12), transparent 22rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0)),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), sans-serif;
+}
+
+h1, h2, h3 { font-family: var(--font-display), serif; }
+p { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+textarea, input, select {
+  color: var(--foreground);
+}
+::selection { background: rgba(82, 113, 255, 0.22); }
+
+.app-input {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid var(--border);
+  background: var(--surface-strong);
+  padding: 0.8rem 1rem;
+  outline: none;
+}
+
+.app-input:focus {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 3px rgba(95, 116, 255, 0.12);
+}
+
+.app-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 1.5rem;
+  box-shadow: 0 12px 36px rgba(8, 15, 35, 0.06);
+}

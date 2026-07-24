@@ -1,0 +1,30 @@
+{
+  "swarms": {
+    "swarm-1784847615232-iseda5": {
+      "swarmId": "swarm-1784847615232-iseda5",
+      "topology": "hierarchical-mesh",
+      "maxAgents": 5,
+      "status": "running",
+      "agents": [
+        "architect",
+        "backend-investigator",
+        "frontend-investigator",
+        "pipeline-investigator",
+        "reviewer"
+      ],
+      "tasks": [],
+      "config": {
+        "topology": "hierarchical-mesh",
+        "maxAgents": 5,
+        "strategy": "specialized",
+        "communicationProtocol": "message-bus",
+        "autoScaling": true,
+        "consensusMechanism": "majority"
+      },
+      "createdAt": "2026-07-23T23:00:15.232Z",
+      "updatedAt": "2026-07-23T23:00:15.232Z",
+      "pid": 540
+    }
+  },
+  "version": "3.0.0"
+}

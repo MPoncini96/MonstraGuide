@@ -1,0 +1,70 @@
+{
+  "agents": {
+    "architect": {
+      "agentId": "architect",
+      "agentType": "system-architect",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {},
+      "createdAt": "2026-07-23T23:00:29.474Z",
+      "domain": "coordination",
+      "model": "opus",
+      "modelRoutedBy": "router",
+      "provider": "anthropic"
+    },
+    "backend-investigator": {
+      "agentId": "backend-investigator",
+      "agentType": "backend-dev",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {},
+      "createdAt": "2026-07-23T23:00:30.077Z",
+      "domain": "backend",
+      "model": "opus",
+      "modelRoutedBy": "router",
+      "provider": "anthropic"
+    },
+    "frontend-investigator": {
+      "agentId": "frontend-investigator",
+      "agentType": "coder",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {},
+      "createdAt": "2026-07-23T23:00:31.494Z",
+      "domain": "frontend",
+      "model": "opus",
+      "modelRoutedBy": "router",
+      "provider": "anthropic"
+    },
+    "pipeline-investigator": {
+      "agentId": "pipeline-investigator",
+      "agentType": "researcher",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {},
+      "createdAt": "2026-07-23T23:00:32.559Z",
+      "domain": "ai-pipeline",
+      "model": "sonnet",
+      "modelRoutedBy": "router",
+      "provider": "anthropic"
+    },
+    "reviewer": {
+      "agentId": "reviewer",
+      "agentType": "security-manager",
+      "status": "idle",
+      "health": 1,
+      "taskCount": 0,
+      "config": {},
+      "createdAt": "2026-07-23T23:00:33.681Z",
+      "domain": "security",
+      "model": "sonnet",
+      "modelRoutedBy": "router",
+      "provider": "anthropic"
+    }
+  },
+  "version": "3.0.0"
+}

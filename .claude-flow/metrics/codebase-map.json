@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-24T18:25:31.556Z",
+  "timestamp": "2026-07-24T18:40:31.567Z",
   "projectRoot": "C:\\Guide",
   "structure": {
     "hasPackageJson": true,
@@ -7,5 +7,5 @@
     "hasClaudeConfig": true,
     "hasClaudeFlow": true
   },
-  "scannedAt": 1784917531557
+  "scannedAt": 1784918431567
 }
